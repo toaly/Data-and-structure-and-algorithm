@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script>
+    //  队列的封装
+    class Queue {
+        constructor() {
+            this.items = [];
+        }
+
+        enqueue(item) {
+            this.items.push(item);
+        }
+
+        dequeue(item) {
+            return this.items.shift()
+        }
+
+        front() {
+            return this.items[0]
+        }
+
+        isEmpty() {
+            return this.items.length == 0
+        }
+
+        toString(item) {
+            let str = ""
+            for (var i = 0; i < this.items.length; i++) {
+                str += this.items[i] + ""
+            }
+            return str
+
+        }
+
+        size() {
+            return this.items.length
+        }
+
+    }
+
+
+
+
+    function PassGame(namlist, num) {
+
+        const queue = new Queue()
+
+        for (let item of namlist) {
+            queue.enqueue(item)
+        }
+
+        while (queue.size() > 1) {
+            for (let i = 0; i < num - 1; i++) {
+                queue.enqueue(queue.dequeue())
+            }
+            queue.dequeue()
+        }
+
+        alert(queue)
+
+
+        return namlist.indexOf(queue.front())
+
+
+    }
+
+    // alert(PassGame(["aaa", "bbb", "ccc"], 5))
+
+
+
+    class Pricay {
+        constructor(item, priority) {
+            this.item = item;
+            this.priority = priority;
+        }
+
+    }
+
+    //优先级队列
+    class PriorityQueue extends Queue {
+        constructor() {
+            super();
+        }
+
+        enqueue(newItem, Priority) {
+            const pricay = new Pricay(newItem, Priority)
+
+            if (super.isEmpty()) {
+                this.items.push(pricay)
+            } else {
+                let add = false;
+                for (let i = 0; i < this.items.length; i++) {
+                    if (pricay.priority < this.items[i].priority) {
+                        this.items.splice(i, 0, pricay)
+                        add = true
+                        break;
+                    }
+                }
+
+                if (!add) {
+                    this.items.push(pricay)
+                }
+            }
+
+        }
+
+
+        // toString() 将队列中元素以字符串形式返回
+        // 重写 toString()
+        toString() {
+            let result = "";
+            for (let item of this.items) {
+                result += item.item + "-" + item.priority + " ";
+            }
+            return result;
+        }
+    }
+
+
+    const STRING = new PriorityQueue()
+
+    STRING.enqueue("aaa", 1)
+    STRING.enqueue("bbb", 999)
+    STRING.enqueue("ccc", 99)
+    STRING.enqueue("ddd", 888)
+
+    alert(STRING.toString())
+
+
+</script>
+
+<body>
+
+</body>
+
+</html>
