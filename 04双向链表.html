@@ -8,99 +8,101 @@
     <title>Document</title>
 </head>
 <script>
-    // append(element) 向链表尾部添加一个新的项。
-    // insert(position, element) 向链表的特定位置插入一个新的项。
-    // get(position) 获取对应位置的元素。
-    // indexOf(element) 返回元素在链表中的索引。如果链表中没有该元素就返回-1。
-    // update(position, element) 修改某个位置的元素。
-    // removeAt(position) 从链表的特定位置移除一项。
-    // remove(element) 从链表中移除一项。
+    // append(element) 向链表尾部追加一个新元素。
+    // insert(position, element) 向链表的指定位置插入一个新元素。
+    // getElement(position) 获取指定位置的元素。
+    // indexOf(element) 返回元素在链表中的索引。如果链表中没有该元素就返回 -1。
+    // update(position, element) 修改指定位置上的元素。
+    // removeAt(position) 从链表中的删除指定位置的元素。
+    // remove(element) 从链表删除指定的元素。
     // isEmpty() 如果链表中不包含任何元素，返回 trun，如果链表长度大于 0 则返回 false。
     // size() 返回链表包含的元素个数，与数组的 length 属性类似。
     // toString() 由于链表项使用了 Node 类，就需要重写继承自 JavaScript 对象默认的 toString 方法，让其只输出元素的值。
-    //  队列的封装
+    // forwardString() 返回正向遍历节点字符串形式。
+    // backwordString() 返回反向遍历的节点的字符串形式。
     class LinkedList {
         // 初始链表长度为 0
         length = 0;
 
-        // 初始 head 为 null，head 指向链表的第一个节点
         head = null;
+
+        tail = null;
 
         // 内部类（链表里的节点 Node）
         Node = class {
             data;
             next = null;
+            pre = null;
             constructor(data) {
                 this.data = data;
             }
         };
 
-        //追加节点
-
-        append(data) {
-            // 1、创建新节点
-            const newNode = new this.Node(data);
-            // 2、追加新节点
-            if (this.length === 0) {
-                // 链表长度为 0 时，即只有 head 的时候
+        append(element) {
+            const newNode = new Node(element)
+            if (this.head === null) {
                 this.head = newNode;
-            } else {
-                let cur = this.head
-                while (cur.next) {
-                    cur = cur.next;
-                }
-                // 最后一个节点的 next 指向新节点
-                cur.next = newNode;
+                this.tail = newNode;
             }
-            this.length += 1;
-        }
-
-        toString(str) {
-            let cur = this.head;
-            let result = "";
-            while (cur) {
-                result += cur.data + " "
-                cur = cur.next;
-            }
-            return result;
-        }
-
-        // insert() 在指定位置（position）插入节点
-        insert(position, data) {
-            //判断下标越界吗
-            if (position < 0 || position > this.length) return false;
-            // 2、创建新节点
-            const newNode = new this.Node(data);
-            if (position === 0) {
-                newNode.next = this.head
-                // head 赋值为 newNode
-                this.head = newNode;
-            } else {
-                let oldNode = "";
-                let currtent = this.head
-                let index = 0;
-
-                while (index++ < position) {
-                    oldNode = currtent;
-                    currtent = currtent.next;
-                }
-
-                oldNode.next = newNode;
-                // 在当前节点和当前节点的上一节点之间插入新节点，即它们的改变指向
-                newNode.next = currtent;
+            else {
+                this.tail.next = newNode;
+                newNode.prev = this.tail;
+                this.tail = newNode;
             }
 
-
-            // 更新链表长度
             this.length++;
-            return newNode;
         }
 
-
-        //下标获取数据
-        getData(position) {
+        insert(position, element) {
             if (position < 0 || position >= this.length) return null;
+            const newNode = new Node(element)
 
+            //头部插入
+
+            if (position == 0) {
+                if (this.head === null) {
+                    this.head = newNode;
+                    this.tail = newNode;
+                }
+                this.head.pre = newNode
+                newNode.next = this.head;
+                this.head = newNode;
+            }
+
+            else if (position === this.length) {
+                this.tail.next = newNode;
+                newNode.prev = this.tail;
+                this.tail = newNode;
+            } else {
+                //中间插入
+                let curNode = this.head;
+
+                let preNode = null;
+
+                let tagIndex = 0;
+
+                while (tagIndex++ < position) {
+                    preNode = curNode;
+                    curNode = curNode.next;
+                }
+
+                // 交换节点信息
+                preNode.next = newNode;
+                newNode.prev = preNode;
+
+                newNode.next = curNode;
+                curNode.prev = newNode;
+
+            }
+
+            this.length++;
+
+            return true;
+
+        }
+
+        getElement(position) {
+            if (position < 0 || position >= this.length) return null;
             let cur = this.head;
             let idx = 0;
             while (idx++ < position) {
@@ -108,66 +110,68 @@
             }
             return cur.data;
         }
-        //         实现 indexOf() 方法
-        // indexOf(data) 返回指定 data 的 index，如果没有，返回 -1。
 
-        indexOf(data) {
-            let currentNode = this.head;
+        // 返回元素在链表中的索引。如果链表中没有该元素就返回 -1。
+        indexOf(element) {
+            let cur = this.head;
             let idx = 0;
-            while (currentNode) {
-                if (currentNode.data === data) {
+            while (cur) {
+                if (cur.data === element) {
                     return idx;
                 }
-                currentNode = currentNode.next;
+                cur = cur.next;
                 idx++;
             }
-
             return -1;
+
         }
 
-        //         实现 update() 方法
-        // update(position, data) 修改指定位置节点的 data。
-        update(position, data) {
-            if (position < 0 || position >= this.length) return false;
-            let cur = this.head;//是引用，不是赋值
+        // update(position, element) 修改指定位置上的元素。
+        update(position, element) {
+
+            if (position < 0 || position > this.length) return false;
             let idx = 0;
+            let cur = this.head;
             while (idx++ < position) {
                 cur = cur.next;
             }
-            cur.data = data;
-            return cur;
+            cur.data = element;
+            return true;
+
         }
 
-        // 实现 removeAt() 方法
-        // removeAt(position) 删除指定位置的节点。
+        // removeAt(position) 从链表中的删除指定位置的元素。
         removeAt(position) {
-            if (position < 0 || position >= this.length) return false
-            let cur = this.head;
-            if (position == 0) {
-                this.head = this.head.next
-            } else {
-                let precur = null
+            if (position < 0 || position > this.length) return false;
+            // 2、根据不同情况删除元素
+            let currentNode = this.head;
+            if (position === 0) {
+                if (this.length === 1) {
+                    this.head = null;
+                    this.tail = null;
+                } else {
+                    this.head = this.head.next;
+                    this.head.prev = null;
+                }
+            }
+            else if (position === this.length - 1) {
+                currentNode = this.tail;
+                this.tail.prev.next = null;
+                this.tail = this.tail.prev;
+            }
+            else {
                 let idx = 0;
+                let pre = null;
+                let cur = this.head;
                 while (idx++ < position) {
-                    precur = cur
+                    pre = cur;
                     cur = cur.next;
                 }
-                precur.next = cur.next
+
+                pre.next = cur.next;
+                cur.next.pre = pre;
             }
-            this.length--;
-            return cur
-        }
-
-        remove(data) {
-            this.removeAt(this.indexOf(data));
-        }
-
-        isEmpty() {
-            return this.length === 0;
-        }
-
-        size() {
-            return this.length;
+            return currentNode.data;
         }
     }
 
