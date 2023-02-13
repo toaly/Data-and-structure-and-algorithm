@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script>
+
+    // 哈希函数
+    //1.字符->hashcode
+    //2.hashcode压缩到可接受数组范围 下表
+
+    function hashFunc(str, size) {
+        // 自己采用的一个质数（无强制要求，质数即可）
+        const PRIME = 37;
+
+        // 2、使用霍纳法则（秦九韶算法），计算 hashCode 的值
+        let hashcode = 0;
+        for (let i in str) {
+            hashcode = PRIME * hashCode + item.charCodeAt();
+        }
+
+        // 3、对 hashCode 取余，并返回
+        return hashCode % size;
+    }
+
+
+    // 哈希表常见操作
+    // put(key, value) 插入或修改操作。
+    // get(key) 获取哈希表中特定位置的元素。
+    // remove(key) 删除哈希表中特定位置的元素。
+    // isEmpty() 如果哈希表中不包含任何元素，返回 trun，如果哈希表长度大于 0 则返回 false。
+    // size() 返回哈希表包含的元素个数。
+    // resize(value) 对哈希表进行扩容操作。
+    class Hash {
+        constructor() {
+            this.item = []
+        }
+
+        put(key, value) {
+
+        }
+
+    }
+
+    const hash = new Hash();
+</script>
+
+<body>
+
+</body>
+
+</html>
