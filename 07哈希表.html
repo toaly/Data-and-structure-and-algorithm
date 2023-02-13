@@ -13,19 +13,24 @@
     //1.字符->hashcode
     //2.hashcode压缩到可接受数组范围 下表
 
-    function hashFunc(str, size) {
+    function hashFn(str, size=7) {
         // 自己采用的一个质数（无强制要求，质数即可）
-        const PRIME = 37;
+        const PRIME = 31;
 
         // 2、使用霍纳法则（秦九韶算法），计算 hashCode 的值
         let hashcode = 0;
-        for (let i in str) {
-            hashcode = PRIME * hashCode + item.charCodeAt();
+        for (let i of str) {
+            hashcode = PRIME * hashcode + i.charCodeAt();
+            console.log(hashcode);
         }
 
         // 3、对 hashCode 取余，并返回
-        return hashCode % size;
+        return hashcode % size;
     }
+
+    console.log(hashFn("123")); //--> 5
+    console.log(hashFn("abc")); //--> 6
+
 
 
     // 哈希表常见操作
