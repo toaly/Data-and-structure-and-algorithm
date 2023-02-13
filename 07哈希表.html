@@ -9,24 +9,6 @@
 </head>
 <script>
 
-    // 哈希函数
-    //1.字符->hashcode
-    //2.hashcode压缩到可接受数组范围 下表
-
-    function hashFn(str, size=7) {
-        // 自己采用的一个质数（无强制要求，质数即可）
-        const PRIME = 31;
-
-        // 2、使用霍纳法则（秦九韶算法），计算 hashCode 的值
-        let hashcode = 0;
-        for (let i of str) {
-            hashcode = PRIME * hashcode + i.charCodeAt();
-            console.log(hashcode);
-        }
-
-        // 3、对 hashCode 取余，并返回
-        return hashcode % size;
-    }
 
     console.log(hashFn("123")); //--> 5
     console.log(hashFn("abc")); //--> 6
@@ -40,18 +22,80 @@
     // isEmpty() 如果哈希表中不包含任何元素，返回 trun，如果哈希表长度大于 0 则返回 false。
     // size() 返回哈希表包含的元素个数。
     // resize(value) 对哈希表进行扩容操作。
-    class Hash {
+    class HashTable {
         constructor() {
-            this.item = []
+            this.stroge = [];
+            this.count = 0;//元素个数，为了装载因子扩容
+            this.limit = 0;//当前总长度
+
+        }
+        // 哈希函数
+        //1.字符->hashcode
+        //2.hashcode压缩到可接受数组范围 下表
+
+        hashFn(str, size = 7) {
+            // 自己采用的一个质数（无强制要求，质数即可）
+            const PRIME = 31;
+
+            // 2、使用霍纳法则（秦九韶算法），计算 hashCode 的值
+            let hashcode = 0;
+            for (let i of str) {
+                hashcode = PRIME * hashcode + i.charCodeAt();
+                console.log(hashcode);
+            }
+
+            // 3、对 hashCode 取余，并返回
+            return hashcode % size;
         }
 
+        //找到元素的位置
+        //判断是否存在桶
+        //判断是新增还是修改
         put(key, value) {
+            let index = this.hashFn(key, this.limit)
+            let bucket = this.stroge[index]
+            if (bucket == null) {
+                bucket = [];  // 不存在则创建
+                this.storage[index] = bucket;
+            }
+
+            for (let i = 0; i < bucket.length; i++) {
+                let tuple = bucket[i] //[key,value] 报保存的东西
+                if (tuple[0] == key) {
+                    tuple[1] = value;
+                    return
+                }
+
+            }
+
+            // 5、bucket 新增数据
+            bucket.push([key, value]); // bucket 存储元组 tuple，格式为 [key, value]
+            this.count++;
 
         }
+
+        get(key) {
+
+            let bucket = this.stroge[this.hashFn(key, this.limit)]
+            if (bucket == null) {
+                return null;
+            }
+
+            for (let i = 0; i < bucket.length; i++) {
+                let tuple = bucket[i] //[key,value] 报保存的东西
+                if (tuple[0] == key) {
+                    return tuple[1]
+                }
+
+            }
+            return null;
+
+        }
+
 
     }
 
-    const hash = new Hash();
+    const hash = new HashTable();
 </script>
 
 <body>
