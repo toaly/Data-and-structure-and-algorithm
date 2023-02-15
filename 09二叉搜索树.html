@@ -41,7 +41,7 @@
             }
         }
 
-        // 递归比较节点
+        // 递归 比较节点
         insertNode(node, newNode) {
             // 左节点
             if (node.key > newNode.key) {
@@ -59,15 +59,30 @@
             }
         }
 
-        search(key){
 
+        //树的遍历
+        // 先序遍历
+        preorderTraversal() {
+            const result = [];
+            this.preorderTraversalNode(this.root, result)
+            return result;
         }
+
+        //给我遍历这个树
+        preorderTraversalNode(node, result) {
+            if (node === null) return null;
+            result.push(node.key)
+            this.preorderTraversalNode(node.left, result)
+            this.preorderTraversalNode(node.right, result)
+        }
+
+
 
 
 
     }
 
-    const tree=new TreeNode()
+    const tree = new TreeNode()
 
     tree.insert(11)
     tree.insert(4)
@@ -80,6 +95,7 @@
     tree.insert(54)
     tree.insert(67)
     tree.insert(34)
+    alert(tree.preorderTraversal())
 
     console.log(tree);
 
