@@ -19,6 +19,70 @@
     // max 返回树中最大的值 / 键。
     // remove(key) 从树中移除某个键。
 
+    class TreeNode {
+
+        root = null;
+
+        // 节点类
+        Node = class {
+            constructor(key) {
+                this.key = key;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        insert(key) {
+            let newNode = new this.Node(key);
+            if (this.root == null) {
+                this.root = newNode;
+            } else {
+                this.insertNode(this.root, newNode)
+            }
+        }
+
+        // 递归比较节点
+        insertNode(node, newNode) {
+            // 左节点
+            if (node.key > newNode.key) {
+                if (node.left === null) {
+                    node.left = newNode;
+                } else {
+                    this.insertNode(node.left, newNode)
+                }
+            } else {
+                if (node.right === null) {
+                    node.right = newNode;
+                } else {
+                    this.insertNode(node.right, newNode)
+                }
+            }
+        }
+
+        search(key){
+
+        }
+
+
+
+    }
+
+    const tree=new TreeNode()
+
+    tree.insert(11)
+    tree.insert(4)
+    tree.insert(5)
+    tree.insert(9)
+    tree.insert(56)
+    tree.insert(44)
+    tree.insert(33)
+    tree.insert(36)
+    tree.insert(54)
+    tree.insert(67)
+    tree.insert(34)
+
+    console.log(tree);
+
 </script>
 
 <body>
