@@ -130,18 +130,88 @@
             if (this.root === null) return null;
             let node = this.root;
 
-            // while (node.right !== null) {
-            //     node = node.right;
-            // }
-
-            // console.log(this.root===node);
-            node.key=99;
-
-            console.log(this.root,node);
+            while (node.right !== null) {
+                node = node.right;
+            }
 
             return node.key;
         }
 
+        // search(key) 查找二叉搜索树中是否有相同的key，存在返回 true，否则返回 false
+        search(key) {
+            return this.searchNode(this.root, key);
+        }
+
+        searchNode(node, key) {
+            if (node === null) return false;
+            if (node.key > key) {
+                return this.searchNode(node.left, key)
+            }
+            else if (node.key < key) {
+                this.searchNode(node.right, key)
+            } else {
+                return true;
+            }
+        }
+
+        // 通过 while 循环实现
+        search2(key) {
+            const node = this.root;
+
+            while (node !== null) {
+                if (node.key > key) {
+                    node = node.left;
+
+                } else if (key > node.key) {
+                    node = node.right;
+                } else {
+                    return true;
+                }
+
+            }
+
+            return false
+        }
+
+
+        remove(key) {
+            let current = this.root;
+            let parent = null;
+            let isLeftChild = false;
+
+            // 找到删除元素位置以及父节点
+            while (current.key !== key) {
+
+                parent = current;
+                if (key < current.key) {
+                    isLeftChild = true;
+                    current = current.left;
+                } else {
+                    isLeftChild = false;
+                    current = current.right;
+                }
+
+                // 若没有找到，说明不需要删除，返回false
+                if (current === null) return false;
+            }
+
+            // 查到了元素
+            //情况一 叶节点
+            if (current.left == null && current.right == null) {
+                if (current == this.root) {
+                    this.root = null;
+                } else if (isLeftChild) {
+                    parent.left = null;
+                } else {
+                    parent.right = null;
+                }
+
+            }
+
+            //情况二 
+
+
+        }
 
 
     }
@@ -175,10 +245,13 @@
     // alert(bst.postorderTraversal())
 
     //min
-    alert(bst.mix())
+    // alert(bst.mix())
 
-    //max
-    alert(bst.max())
+    // //max
+    // alert(bst.max())
+
+    //search
+    // alert(bst.search(0))
 
     // console.log(bst);
 
