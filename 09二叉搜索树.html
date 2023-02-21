@@ -207,9 +207,71 @@
                 }
 
             }
+            //情况二  自己是父节点，只有左节点
+            else if (current.right === null) {
+                if (current === this.root) {
+                    this.root = current.left;
+                }
+                else if (isLeftChild) {
+                    parent.left = current.left
+                } else {
+                    parent.right = current.left;
+                }
 
-            //情况二 
+                //情况三  自己是父节点，只有右节点
+            } else if (current.left == null) {
+                if (current === this.root) {
+                    this.root = current.right;
+                }
+                else if (isLeftChild) {
+                    parent.right = current.right
+                } else {
+                    parent.left = current.right;
+                }
+            } else {
+                // 1、找到后续节点
+                let successor = this.getSuccessor(current);
 
+                //情况四  自己是父节点，有左右节点,前驱，后驱  /后驱
+                if (current === this.root) {
+                    this.root = successor;
+                }
+                else if (isLeftChild) {
+                    parent.left = successor;
+                }
+                else {
+                    parent.right = successor;
+                }
+
+
+                // 3、将后续的左节点改为被删除的左节点
+                successor.left = current.left;
+            }
+
+
+
+
+        }
+
+
+        getSuccessor(delNode) {
+            // 定义变量，保存要找到的后续
+            let successor = delNode;
+            let current = delNode.right;
+            let successorParent = delNode;
+
+            while (current !== null) {
+                successorParent = successor;
+                successor = current;
+                current = current.left;
+            }
+
+            if (successor !== delNode.right) {
+                successorParent.left = successor.right
+                successor.right = delNode.right;
+            }
+
+            return successor;
 
         }
 
@@ -253,7 +315,10 @@
     //search
     // alert(bst.search(0))
 
-    // console.log(bst);
+
+    bst.remove(11)
+    
+    console.log(bst);
 
 </script>
 
