@@ -63,6 +63,18 @@
 
         return binaryString;
     }
+
+    let nums = [0,1,2,2,3,0,4,2]
+
+    const n = nums.length;
+    let left = 0;
+    for (let right = 0; right < n; right++) {
+        if (nums[right] !== 2) {
+            nums[left] = nums[right];
+            left++;
+        }
+    }
+    console.log(nums);
 </script>
 
 <body>

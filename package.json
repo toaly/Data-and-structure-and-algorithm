@@ -1,0 +1,16 @@
+{
+  "name": "data-and-structure-and-algorithm",
+  "version": "1.0.0",
+  "description": "数据算法与结构\r 学习b站 codeWhy 视频以及来自大佬的视频总结\r https://github.com/XPoet/JS-Data-Structures-and-Algorithms\r 冲鸭！学无止境",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --watch src -e ts --exec ts-node src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ts-node": "^10.9.1"
+  }
+}
