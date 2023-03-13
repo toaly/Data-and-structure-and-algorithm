@@ -695,7 +695,7 @@ https://juejin.cn/post/6890286075856551950#heading-0
 
 你会好奇为什么要这样做呢？首先已有的对象可能是你不能够修改的，为什么不能够修改？可能因为这个对象是第三方库引入的，或者是代码中全局使用的，或者是一个你还不是很熟悉和了解的对象。这些情况下，你是不能够轻易在这些对象上添加新的功能的。但是你又不得不对这个对象增加一些新的功能来满足当下的开发需求。所以这时候，使用装饰者模式就可以很好地解决这个问题。我们赶紧来学习一下吧~
 
-### 通过一个例子来实战装饰者模式
+### 通过一个例子来实战装饰者 
 
 楼下卖煎饼果子的老板知道你会编写程序，所以想让你来帮忙写一个点餐的小程序，来方便他给买煎饼果子的客户点餐。报酬就是以后你来买煎饼果子给你打88折，你一听感觉还不错，所以就答应了下来。
 
@@ -892,6 +892,90 @@ console.log(MyClass.annotated);  # true
 
 **装饰者模式利用组合和委托的特性，能够让我们在不改变原来已有对象的功能和属性的情况下增加新的功能和属性，让我们能够保持代码的低耦合和可扩展性**。是一种很不错的设计模式。
 
-但是使用装饰者模式也有潜在的问题，**因为随着装饰者的增多，代码的复杂性也随之增加了**，所以要确保在合适的场景下使用装饰者模式。
+但是使用装饰者模式也有潜在的问题，**因为随着装饰者的增多，代码的复杂性也随之增加了**，所以要确保在合适的场景下使用装饰者模式。	
 
-文章到这里就结束了，如果你有什么意见和建议欢迎给我[留言](https://link.juejin.cn?target=https%3A%2F%2Fgithub.com%2Fdreamapplehappy%2Fblog%2Fissues%2F17)。你还可以关注我的公众号[关山不难越](http://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f59235ee2de54c2bb1ed9d764d0a9f9e~tplv-k3u1fbpfcp-zoom-1.image)，获取更多关于设计模式的文章讲解以及好玩有趣的前端知识。
+## 1.5观察者模式and 发布订阅者模式
+
+### 观察者模式   
+
+观察者模式是一种行为型模式，关注的是对象之间的通讯，观察者模式就是观察者和被观察者之间的通讯，主要用于一个对象（目标）去维持多个依赖于它的对象（观察者），将相关变更的事件自动通知给他们的场景。
+
+意境：
+
+- 我是三二班其中一名学生（观察者），老师在课堂（主题subject）说下课了。我们听到马上往家跑。。。。
+- 例如在星巴克叫了杯咖啡，制作好了服务员会自动通知领取的
+
+![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/6/17322289225d6e79~tplv-t2oaga2asx-zoom-in-crop-mark:4536:0:0:0.awebp)
+
+
+
+
+
+
+
+```typescript
+interface Observer {
+    update(): void
+}
+interface Subject {
+    addObserver(observer: Observer): void;
+    removeObserver(observer: Observer): void;
+    notify(): void;
+}
+class ConcreteObserver implements Observer {
+    update() {
+        console.log("ConcreteObserver has been notified.");
+    }
+}
+class ConcreteSubject implements Subject {
+    private observers: Observer[] = [];
+
+    addObserver(observer: Observer): void {
+        this.observers.push(observer);
+    }
+    removeObserver(observer: Observer): void {
+        const index = this.observers.indexOf(observer);
+        if (index !== -1) {
+            this.observers.splice(index, 1);
+        }
+    }
+    notify(): void {
+        for (const observer of this.observers) {
+            //通知全部观察者
+            observer.update();
+        }
+    }
+
+}
+const Observer = new ConcreteSubject()
+const obj1 = new ConcreteObserver()
+const obj2 = new ConcreteObserver()
+
+Observer.addObserver(obj1)
+Observer.addObserver(obj2)
+
+Observer.notify()
+```
+
+
+
+- **应用场景：**
+
+- - 对一个对象状态的更新，需要其他对象同步更新，而且其他对象的数量动态可变。
+
+- - 对象仅需要将自己的更新通知给其他对象而不需要知道其他对象的细节。
+
+- - 比如采购中，寻源结果审批通过后，会要通知相关采购负责人、自动创建合同信息等后续操作。
+
+- **优点：**
+
+- - 观察者模式在被观察者和观察者之间建立一个抽象的耦合。被观察者角色所知道的只是一个具体观察者列表，每一个具体观察者都符合一个抽象观察者的接口。
+
+- - 观察者模式支持广播通讯。被观察者会向所有的登记过的观察者发出通知，
+
+- **缺点：**
+
+- - 如果一个被观察者对象有很多的直接和间接的观察者的话，同步通知花费时间会很长。
+
+- - 如果在被观察者之间有循环依赖的话，被观察者会触发它们之间进行循环调用，导致系统崩溃。
+

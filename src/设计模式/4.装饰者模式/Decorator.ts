@@ -60,7 +60,7 @@ class PancakeDecoratorWithSausage extends PancakeDecorator {
         return `${this.pancake.getName()}➕香肠`;
     }
     getPrice() {
-        return this.pancake.getPrice() + 1.5; pancake1
+        return this.pancake.getPrice() + 1.5;
     }
 }
 
@@ -95,14 +95,11 @@ const pancake3 = new PancakeDecoratorWithBacon(pancake2);
 console.log(pancake3.getName(), pancake3.getPrice());
 
 
-
-// 为钢铁侠装配盔甲
-const decorateArmour: MethodDecorator = (target, key, descriptor) => {
-    console.log(target, key, descriptor);
+const decorateArmour: MethodDecorator = (target, key, descriptor: PropertyDescriptor): object => {
     const method = descriptor.value;
     let moreDef = 100;
     let ret;
-    descriptor.value = (...args) => {
+    descriptor.value = function (...args: number[]): any {
         args[0] += moreDef;
         ret = method.apply(target, args);
         return ret;
@@ -110,23 +107,100 @@ const decorateArmour: MethodDecorator = (target, key, descriptor) => {
     return descriptor;
 }
 
+
+const decorateLight: MethodDecorator = (target, key, descriptor: PropertyDescriptor) => {
+    let method = descriptor.value;
+    let moreAtk = 100;
+    let ret;
+    descriptor.value = (...args: number[]): any => {
+        args[1] += moreAtk;
+        ret = method.apply(target, args);
+        return ret;
+    }
+    return descriptor
+
+}
+
+function run(canFly: boolean) {
+    return function <T extends { new(...args: any[]): any }>(target: T) {
+        return class extends target {
+            canFly = canFly;
+            toString(...args: any[]) {
+                let extra = this.canFly ? '(技能加成:飞行能力)' : '';
+                return super.toString(...args) + extra;
+            }
+        };
+    }
+}
+
+@run(true)
 class Man {
-    public def = 0;
-    public atk = 0;
-    public hp = 0;
+    def!: number;
+    atk!: number;
+    hp!: number;
+
     constructor(def = 2, atk = 3, hp = 3) {
         this.init(def, atk, hp);
     }
 
     @decorateArmour
-    init(def: number, atk: number, hp: number) {
-        this.def = def; // 防御值
+    @decorateLight
+    init(def: number, atk: number, hp: number): void {
+        this.def = def;  // 防御值
         this.atk = atk;  // 攻击力
         this.hp = hp;  // 血量
     }
 
-    toString() {
+    toString(): string {
         return `防御力:${this.def},攻击力:${this.atk},血量:${this.hp}`;
     }
 }
+
+const tony = new Man();
+console.log(`当前状态 ===> ${tony}`);
+
+
+
+const log = (type: string): MethodDecorator => {
+    return (target, name, descriptor: PropertyDescriptor) => {
+        const method = descriptor.value;
+        console.info(`(${type}) 正在执行: ${name.toString()} ......`);
+        let ret: string;
+        descriptor.value = (...args: any[]) => {
+            try {
+                ret = method.apply(target, args);
+                console.info(`(${type}) 成功 : ${name.toString()}(${args}) => ${ret}`);
+            } catch (error) {
+                console.info(`(${type}) 成功 : ${name.toString()}(${args}) => ${error}`);
+            }
+            return ret;
+        }
+        return descriptor
+    }
+}
+
+class IronMan {
+
+    @log('IronMan 自检阶段')
+    check() {
+        return '检查完毕';
+    }
+
+    @log('IronMan 攻击阶段')
+    attack() {
+        return '击倒敌人';
+    }
+
+    @log('IronMan 机体报错')
+    error() {
+        throw 'Something is wrong!';
+    }
+}
+
+var tonyDO = new IronMan();
+tonyDO.check();
+tonyDO.attack();
+tonyDO.error();
+
+
 
