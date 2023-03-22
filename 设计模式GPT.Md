@@ -981,21 +981,169 @@ Observer.notify()
 
 - **应用场景：**
 
-- - 对一个对象状态的更新，需要其他对象同步更新，而且其他对象的数量动态可变。
+- 对一个对象状态的更新，需要其他对象同步更新，而且其他对象的数量动态可变。
 
-- - 对象仅需要将自己的更新通知给其他对象而不需要知道其他对象的细节。
+- 对象仅需要将自己的更新通知给其他对象而不需要知道其他对象的细节。
 
-- - 比如采购中，寻源结果审批通过后，会要通知相关采购负责人、自动创建合同信息等后续操作。
+- 比如采购中，寻源结果审批通过后，会要通知相关采购负责人、自动创建合同信息等后续操作。
 
 - **优点：**
 
-- - 观察者模式在被观察者和观察者之间建立一个抽象的耦合。被观察者角色所知道的只是一个具体观察者列表，每一个具体观察者都符合一个抽象观察者的接口。
+- 观察者模式在被观察者和观察者之间建立一个抽象的耦合。被观察者角色所知道的只是一个具体观察者列表，每一个具体观察者都符合一个抽象观察者的接口。
 
-- - 观察者模式支持广播通讯。被观察者会向所有的登记过的观察者发出通知，
+- 观察者模式支持广播通讯。被观察者会向所有的登记过的观察者发出通知，
 
 - **缺点：**
 
-- - 如果一个被观察者对象有很多的直接和间接的观察者的话，同步通知花费时间会很长。
+- 如果一个被观察者对象有很多的直接和间接的观察者的话，同步通知花费时间会很长。
 
-- - 如果在被观察者之间有循环依赖的话，被观察者会触发它们之间进行循环调用，导致系统崩溃。
+- 如果在被观察者之间有循环依赖的话，被观察者会触发它们之间进行循环调用，导致系统崩溃。
+
+###  发布订阅
+
+与`观察者模式`相比，发布订阅核心基于一个中心来建立整个体系。其中`发布者`和`订阅者`不直接进行通信，而是发布者将要发布的消息交由中心管理，订阅者也是根据自己的情况，按需订阅中心中的消息。
+
+![发布订阅.jpg](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/19b670df6cb54c4ebdc17a114b5dc97c~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.awebp)
+
+让我们来想象一下`邮件系统`，你可以作为`订阅者`订阅某个网站的通知，邮件系统在其中充当发布订阅中心的角色，而`发布者`则是你订阅的网站。
+
+整个链路是从你的`订阅`开始，虽然在你订阅之前，别人可能已经订阅过某些网站并不断接收来自网站更新所发出的消息。你的订阅动作是在某个你想订阅的网站填入自己的邮箱，如果这一步以邮件系统为中心，那么则是在的邮箱内记录这个网站信息，后续当网站有内容更新时，邮件系统会及时接收到并向你发送邮件，以达到通知你这个订阅者的目的。
+
+#### 1）降级为观察者模式
+
+这里说的是以邮件系统为中心，假如以网站为中心，那么你对于网站就相当于一个`观察者`，你希望`观察`网站的一举一动，即网站内容的更新。那么订阅动作本身便成了你让网站将你的邮箱加入网站维护的`观察者列表`。这样当网站有内容更新后，便会通知所有观察者，也就是订阅者，这时发布订阅模型则退化成了观察者模式。
+
+#### 2）升级为发布订阅
+
+可以看出，此时网站和用户间其实是有`耦合`的，也就是网站除了要维护自身功能外，还需要维护订阅者列表，并且在内容更新后完成通知工作。这样在用户和网站之间有一部分关系是维护在网站内部的。如果网站想把这部分任务抽离出来，自然便恢复至发布订阅模型，即建立单独的`消息中心`来管理发布者和订阅者之间的关系以及接收变化和通知消息的工作。
+
+> 经过这样的对比，我们可以知道为什么要区分观察者模式和发布订阅，以及它们之间的差别。
+
+#### 3）与观察者模式的关联
+
+但是发布订阅真的和观察者模式是割裂开来的吗？并不是
+
+其实发布订阅的实现内部利用了`观察者模式`，让我们回顾一下观察者模式的核心，观察者模式由观察者和被观察者组成，其中被观察者是重点。二者的关联可以是在创建`被观察者`后，调用其`添加观察者`方法主动建立和某个`观察者`的关系，或是在创建`观察者`时即声明要观察的对象，即`被观察者`。其中观察者和被观察者一般为一对多关系，即一个被观察者可以被多个观察者观察。
+
+那么分析发布订阅模型即可发现，其中`订阅者`和`发布订阅中心`的关系类似`观察者`和`被观察者`的关系。注意只是`类似`，因为虽然其中`订阅者`和`观察者`都是消费的一方，期待能够即时接收到其他方的变化。
+
+但区别在于`观察者模式`中的`被观察者`需要在每次自身改变后都绑定式地触发对`观察者`的通知，因为这是`观察者模式`这一模式所要实现的核心，也就是类似事件处理系统的机制，被观察者有义务针对自身的变化给出响应式的反馈到观察者们，这就是为什么说`观察者模式`是松耦合的，因为`被观察者`的功能不纯粹，要包含一部分`观察者`和自身关系的逻辑。
+
+而`发布订阅`与之的区别在于，因为`发布者`把消息通知的权限交由`发布订阅中心`管理，`发布者`只需关心自身的`发布`逻辑，而不会直接和其所发布内容的`订阅者`直接通信。`订阅者`也如此，其只关心向`发布订阅中心`注册自己想要接收通知的栏目，并实现自己在接收到通知后的逻辑，而无需关心消息来自何方，发布者是谁。因此`发布者`和`订阅者`由于`发布订阅中心`的出现而完全解耦。
+
+由于`发布订阅中心`这一中间层的出现，对于生产方和消费方的通信管理变得更加的可管理和可拓展。比如这样同样可以实现通过观察者模式实现的事件机制，即消息中心在接收到新的消息发布后即时通知到该类目下的所有订阅者，只不过此时的`发布者`与`消息中心`的关系为`一对一`，并且`消息中心`与`订阅者`为`一对多`，消息中心只相当于发布者的一层代理。
+
+![发布订阅模拟观察者模式.jpg](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/74f06fb7a35143b798b010b0481d853f~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.awebp)
+
+```typescript
+
+interface IMessage {
+    [key: string]: any[]
+}
+
+type Listrens = Record<string, Function[]>
+
+// 发布-订阅模式
+// 内容中心
+class PubSub {
+    listeners: Listrens = {}
+    messages: IMessage = {}
+
+
+    publish(type: string, message: any) {
+        if (!this.messages[type]) {
+            this.messages[type] = [];
+        }
+        this.messages[type].push(message);
+    }
+
+    subscribe(type: string, cb: Function) {
+        if (!this.listeners[type]) {
+            this.listeners[type] = []
+        }
+        this.listeners[type].push(cb);
+    }
+
+    notify(type: string) {
+        let message = this.messages[type]
+        let listeners = this.listeners[type] || [] as Function[];
+        listeners.forEach(cb => cb(message))
+    }
+
+}
+
+
+// 发布者
+class Publisher {
+    constructor(public name: string, private content: PubSub) { }
+    publish = (type: string, context: any) => this.content.publish(type, context)
+}
+
+
+// 订阅者
+class Subscriber {
+    constructor(public name: string, private content: PubSub) { }
+    subscribe = (type: string, cb: Function) => this.content.subscribe(type, cb)
+}
+
+const pubsub = new PubSub()
+
+const publisterA = new Publisher("PublisherA", pubsub)
+const publisterB = new Publisher("PublisherB", pubsub)
+const publisterC = new Publisher("PublisherC", pubsub)
+publisterA.publish("PublisherA", "PublisherA----------context")
+publisterA.publish("PublisherA", "PublisherA2----------context")
+publisterB.publish("PublisherB", "PublisherB----------context")
+publisterC.publish("PublisherC", "PublisherC----------context")
+
+const SubscriberA = new Subscriber("SubscriberA", pubsub)
+SubscriberA.subscribe("PublisherA", (context:any []) => {
+    console.info("SubscriberA------liseters", context.join(","))
+})
+
+const SubscriberA2 = new Subscriber("SubscriberA2", pubsub)
+SubscriberA2.subscribe("PublisherA", (context: any) => {
+    console.info("SubscriberA2------liseters", context.join(","))
+})
+
+const SubscriberB = new Subscriber("SubscriberB", pubsub)
+SubscriberB.subscribe("PublisherB", (context: any) => {
+    console.info("SubscriberB------liseters", context.join(","))
+})
+
+const SubscriberC = new Subscriber("SubscriberC", pubsub)
+SubscriberC.subscribe("PublisherC", (context: any) => {
+    console.info("SubscriberC------liseters", context.join(","))
+})
+
+
+
+pubsub.notify("PublisherA")
+pubsub.notify("PublisherD")
+```
+
+以上`发布订阅中心`、`发布者`和`订阅者`三者有各自的实现，其中`发布者`和`订阅者`实现比较简单，只需完成各自`发布`、`订阅`的任务即可。其中`订阅者`可以在接收到消息后做后续处理。重点在于二者需要确保在与同一个`发布订阅中心`进行关联，否则两者之间的通信无从关联。
+
+发布者的发布动作和订阅者的订阅动作相互独立，无需关注对方，消息派发由发布订阅中心负责。
+
+#### 4）实际应用
+
+在实际应用中，对于以上二者的实现可能会更加的复杂，同时也会根据各自的场景进行变形，所以大可不必拘泥于二者的标准实现。因为不论是设计模式还是技术模型大多都只是前人根据经验总结而成的编程思想，知道它们可能会对某些复杂问题的解决有启发性的帮助，进而借助这类思想巧妙地解决特定场景的问题。
+
+至于具体应用实例我能想到的有如下实践，欢迎补充。
+
+- Node.js中自带的EventEmiter模块
+- Vue.js中数据响应式的实现
+
+其他比如你在代码中发现有`watch、watcher、observe、observer、listen、listener、dispatch、trigger、emit、on、event、eventbus、EventEmitter`这类单词出现的地方，很有可能是在使用`观察者模式`或`发布订阅`的思想。等下次你发现有这些词的时候，不妨点进它的源码实现看看其他coder在实现`观察者模式`或`发布订阅`时有哪些巧妙的细节。
+
+## 1.6策略模式
+
+https://juejin.cn/post/7165667166593744927
+
+
+
+
+
+
 

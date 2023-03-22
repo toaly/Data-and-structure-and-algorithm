@@ -49,104 +49,90 @@
 // Observer.addObserver(obj1)
 // Observer.addObserver(obj2)
 
-// Observer.notify()
+// Observer.notif   y()
 
 
 
-
-// 发布订阅模式
 interface IMessage {
-    [key: string]: any[];
+    [key: string]: any[]
 }
 
-type Listener = (content: any) => void;
+type Listrens = Record<string, Function[]>
 
+// 发布-订阅模式
+// 内容中心
 class PubSub {
-    private messages: IMessage = {};
-    private listeners: { [key: string]: Listener[] } = {};
+    listeners: Listrens = {}
+    messages: IMessage = {}
 
-    public publish(type: string, content: any): void {
-        const existContent = this.messages[type];
-        if (!existContent) {
+
+    publish(type: string, message: any) {
+        if (!this.messages[type]) {
             this.messages[type] = [];
         }
-        this.messages[type].push(content);
+        this.messages[type].push(message);
     }
 
-    public subscribe(type: string, cb: Listener): void {
-        const existListener = this.listeners[type];
-        if (!existListener) {
-            this.listeners[type] = [];
+    subscribe(type: string, cb: Function) {
+        if (!this.listeners[type]) {
+            this.listeners[type] = []
         }
         this.listeners[type].push(cb);
     }
 
-    public notify(type: string): void {
-        const messages = this.messages[type];
-        const subscribers = this.listeners[type] || [];
-        subscribers.forEach((cb, index) => cb(messages[index]));
+    notify(type: string) {
+        let message = this.messages[type]
+        let listeners = this.listeners[type] || [] as Function[];
+        listeners.forEach(cb => cb(message))
     }
+
 }
 
+
+// 发布者
 class Publisher {
-    private name: string;
-    private context: PubSub;
-
-    constructor(name: string, context: PubSub) {
-        this.name = name;
-        this.context = context;
-    }
-
-    public publish(type: string, content: any): void {
-        this.context.publish(type, content);
-    }
+    constructor(public name: string, private content: PubSub) { }
+    publish = (type: string, context: any) => this.content.publish(type, context)
 }
 
+
+// 订阅者
 class Subscriber {
-    private name: string;
-    private context: PubSub;
-
-    constructor(name: string, context: PubSub) {
-        this.name = name;
-        this.context = context;
-    }
-
-    public subscribe(type: string, cb: Listener): void {
-        this.context.subscribe(type, cb);
-    }
+    constructor(public name: string, private content: PubSub) { }
+    subscribe = (type: string, cb: Function) => this.content.subscribe(type, cb)
 }
 
-const TYPE_A = 'music';
-const TYPE_B = 'movie';
-const TYPE_C = 'novel';
+const pubsub = new PubSub()
 
-const pubsub = new PubSub();
+const publisterA = new Publisher("PublisherA", pubsub)
+const publisterB = new Publisher("PublisherB", pubsub)
+const publisterC = new Publisher("PublisherC", pubsub)
+publisterA.publish("PublisherA", "PublisherA----------context")
+publisterA.publish("PublisherA", "PublisherA2----------context")
+publisterB.publish("PublisherB", "PublisherB----------context")
+publisterC.publish("PublisherC", "PublisherC----------context")
 
-const publisherA = new Publisher('publisherA', pubsub);
-publisherA.publish(TYPE_A, 'we are young');
-publisherA.publish(TYPE_B, 'the silicon valley');
-const publisherB = new Publisher('publisherB', pubsub);
-publisherB.publish(TYPE_A, 'stronger');
-const publisherC = new Publisher('publisherC', pubsub);
-publisherC.publish(TYPE_C, 'a brief history of time');
+const SubscriberA = new Subscriber("SubscriberA", pubsub)
+SubscriberA.subscribe("PublisherA", (context:any []) => {
+    console.info("SubscriberA------liseters", context.join(","))
+})
 
-const subscriberA = new Subscriber('subscriberA', pubsub);
-subscriberA.subscribe(TYPE_A, res => {
-    console.log('subscriberA received', res)
-});
-const subscriberB = new Subscriber('subscriberB', pubsub);
-subscriberB.subscribe(TYPE_C, res => {
-    console.log('subscriberB received', res)
-});
-const subscriberC = new Subscriber('subscriberC', pubsub);
-subscriberC.subscribe(TYPE_B, res => {
-    console.log('subscriberC received', res)
-});
+const SubscriberA2 = new Subscriber("SubscriberA2", pubsub)
+SubscriberA2.subscribe("PublisherA", (context: any) => {
+    console.info("SubscriberA2------liseters", context.join(","))
+})
 
-pubsub.notify(TYPE_A);
-pubsub.notify(TYPE_B);
-pubsub.notify(TYPE_C);
+const SubscriberB = new Subscriber("SubscriberB", pubsub)
+SubscriberB.subscribe("PublisherB", (context: any) => {
+    console.info("SubscriberB------liseters", context.join(","))
+})
+
+const SubscriberC = new Subscriber("SubscriberC", pubsub)
+SubscriberC.subscribe("PublisherC", (context: any) => {
+    console.info("SubscriberC------liseters", context.join(","))
+})
 
 
-// 发布-订阅模式
 
+pubsub.notify("PublisherA")
+pubsub.notify("PublisherD")
