@@ -1139,7 +1139,381 @@ pubsub.notify("PublisherD")
 
 ## 1.6策略模式
 
-https://juejin.cn/post/7165667166593744927
+https://juejin.cn/post/7113451841001619463
+
+> 策略模式是一种行为设计模式，定义一系列算法，将每一个算法封装起来，并让它们可以相互替换。策略模式让算法独立于使用它的客户而变化，也称为政策模式（Policy）。
+
+> 在什么情况下可以考虑使用策略模式呢？如果函数具有以下特征：
+
+- 判断条件很多
+- 各个判断条件下的代码相互独立
+
+然后可以将每个判断条件下的代码封装成一个独立的函数，然后建立判断条件和具体策略的映射关系。
+
+``` typescript
+// 价格低于或等于 100 元的产品以 20% 的折扣出售。
+// 价格高于 100 元但低于 200 元的产品将减少 20 元。
+// 价格高于或等于 200 元的产品将减少 20 元。
+function getPrice(originalPrice: number, status: string) {
+    if (status === "pre-sale") {
+        return originalPrice * 0.8;
+    }
+
+    if (status === "promotion") {
+        if (originalPrice <= 100) {
+            return originalPrice * 0.9;
+        } else {
+            return originalPrice - 20;
+        }
+    }
+    // 黑色星期五规则
+    if (status === "black-friday") {
+        if (originalPrice >= 100 && originalPrice < 200) {
+            return originalPrice - 20;
+        } else if (originalPrice >= 200) {
+            return originalPrice - 50;
+        } else {
+            return originalPrice * 0.8;
+        }
+    }
+
+    if (status === "default") {
+        return originalPrice;
+    }
+}
+
+
+//存在问题 ---- 
+// 单一原则（个类或者函数都应该有一个单一的功能，并且该功能应该由这个类或者函数完全封装起来）
+// 开闭原则 (对扩展开放，对修改关闭,增加需求，扩展新代码，而非修改原代码)
+
+
+// 使用策略模式
+
+interface Strategie { [key: string]: (origialPrice: number) => number }
+
+const priceStrategies: Strategie = {
+    "pre-sale": preSalePrice,
+    "promotion": promotionPrice,
+    "black-friday": blackFridayPrice,
+    "default": defaultPrice,
+
+}
+
+function getPriceStrategic(originalPrice: number, status: string) {
+    return priceStrategies[status](originalPrice);
+}
+
+
+function preSalePrice(origialPrice: number) {
+    return origialPrice * 0.8;
+}
+
+function promotionPrice(origialPrice: number) {
+    if (origialPrice <= 100) {
+        return origialPrice * 0.9;
+    } else {
+        return origialPrice - 20;
+    }
+}
+function defaultPrice(origialPrice: number) {
+    return origialPrice;
+}
+function blackFridayPrice(origialPrice: number) {
+    if (origialPrice >= 100 && origialPrice < 200) {
+        return origialPrice - 20;
+    } else if (origialPrice >= 200) {
+        return origialPrice - 50;
+    } else {
+        return origialPrice * 0.8;
+    }
+}
+
+
+
+```
+
+
+
+​		这时候如果需要加减折扣策略，不需要修改函数，只需要修改价格策略映射关系 `priceStrategies`
+
+之前的代码逻辑如下：
+
+![代码逻辑1.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/eb48dddc8fbb473ea4b5e4fc992dff32~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.awebp?)
+
+优化后的代码逻辑如下：
+
+![代码逻辑2.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/12b10e731feb4f32bbc31c55806ab874~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.awebp?)
+
+以上的优化策略就是使用了设计模式之策略模式，在实际的项目开发过程中还是比较实用。
+
+1.7外观模式（门面模式）
+
+https://juejin.cn/post/7080165239475404836
+
+**外观模式** （Facade Pattern）又叫门面模式，定义一个将子系统的一组接口集成在一起的高层接口，以提供一个一致的外观。外观模式让外界减少与子系统内多个模块的直接交互，从而减少耦合，让外界可以更轻松地使用子系统。本质是**封装交互，简化调用**。
+
+现实生活中的例子
+
+无人机：
+
+大疆的无人机相信大家就算没玩儿过也见过吧，最常见的四旋翼无人机，如果直接让我们去控制每个螺旋桨的转动来达到上、下、左、右、前、后等飞行常规操作都是非常难的，不过还好我们有遥控器，直接手一搓，想让它怎么飞就怎么飞。遥控器就相当于无人机系统的外观。
+
+经典面试题：
+
+前端有个经典的面试题：浏览器地址栏输入网址，然后回车之后发生了什么。
+
+我第一次听到这个问题的时候也很懵，这个问题的答案显然也可以是非常复杂的，因为从寻址到页面绘制的每一个环节都可以挖得很深的。显然浏览器是为用户做了很多事情，要不然我们现在上个网得费死劲了。当我们按下回车之后，浏览器帮我们做的所有事情其实也相当于浏览器的外观。
+
+在类似场景中，这些例子有以下特点：
+
+1. 一个统一的外观为复杂的子系统提供一个简单的高层功能接口；
+2. 原本访问者直接调用子系统内部模块导致的复杂引用关系，现在可以通过只访问这个统一的外观来避免；
+
+应用场景
+
+外观模式在实践中用得非常多，不管你知不知道外观模式，肯定也都或多或少使用过它。
+
+**函数的参数重载**就是一个典型的应用，某个函数有多个参数，其中一个参数可以传递也可以不传递，你当然可以直接弄两个接口，但是使用函数参数重载的方式，可以让使用者获得更大的自由度，让两个使用上基本类似的方法获得统一的外观。
+
+外观模式经常被用于 JavaScript 的库中，封装一些接口用于兼容多浏览器，让我们可以间接调用我们封装的外观，从而屏蔽了浏览器差异，便于使用。
+
+其应用场景的特点可以总结为以下几点：
+
+1. 维护设计粗糙和难以理解的遗留系统，或者系统非常复杂的时候，可以为这些系统设置外观模块，给外界提供清晰的接口，以后新系统只需与外观交互即可；
+2. 你写了若干小模块，可以完成某个大功能，但日后常用的是大功能，可以使用外观来提供大功能，因为外界也不需要了解小模块的功能；
+3. 团队协作时，可以给各自负责的模块建立合适的外观，以简化使用，节约沟通时间；
+4. 如果构建多层系统，可以使用外观模式来将系统分层，让外观模块成为每层的入口，简化层间调用，松散层间耦合；
+
+优缺点
+
+优点：
+
+1. 访问者不需要再了解子系统内部模块的功能，而只需和外观交互即可，使得访问者对子系统的**使用变得简单**，符合**最少知识原则**，增强了可移植性和可读性；
+2. 减少了与子系统模块的直接引用，实现了**访问者与子系统中模块之间的松耦合**，增加了可维护性和可扩展性；
+3. 通过合理使用外观模式，可以帮助我们**更好地划分系统访问层次**，比如把需要暴露给外部的功能集中到外观中，这样既方便访问者使用，也很好地隐藏了内部的细节，提升了安全性；
+
+缺点：
+
+1. 不符合**开闭原则**，对修改关闭，对扩展开放，如果外观模块出错，那么只能通过修改的方式来解决问题，因为外观模块是子系统的唯一出口；
+2. 不需要或不合理的使用外观会让人迷惑，过犹不及
+
+简化版的无人机的例子：
+
+```js
+var uav = {
+    /* 电子调速器 */
+    diantiao1: {
+        up() {
+            console.log('电调1发送指令：电机1增大转速')
+            uav.dianji1.up()
+        },
+        down() {
+            console.log('电调1发送指令：电机1减小转速')
+            uav.dianji1.up()
+        }
+    },
+    diantiao2: {
+        up() {
+            console.log('电调2发送指令：电机2增大转速')
+            uav.dianji2.up()
+        },
+        down() {
+            console.log('电调2发送指令：电机2减小转速')
+            uav.dianji2.down()
+        }
+    },
+    diantiao3: {
+        up() {
+            console.log('电调3发送指令：电机3增大转速')
+            uav.dianji3.up()
+        },
+        down() {
+            console.log('电调3发送指令：电机3减小转速')
+            uav.dianji3.down()
+        }
+    },
+    diantiao4: {
+        up() {
+            console.log('电调4发送指令：电机4增大转速')
+            uav.dianji4.up()
+        },
+        down() {
+            console.log('电调4发送指令：电机4减小转速')
+            uav.dianji4.down()
+        }
+    },
+    
+    /* 电机 */
+    dianji1: {
+        up() { console.log('电机1增大转速') },
+        down() { console.log('电机1减小转速') }
+    },
+    dianji2: {
+        up() { console.log('电机2增大转速') },
+        down() { console.log('电机2减小转速') }
+    },
+    dianji3: {
+        up() { console.log('电机3增大转速') },
+        down() { console.log('电机3减小转速') }
+    },
+    dianji4: {
+        up() { console.log('电机4增大转速') },
+        down() { console.log('电机4减小转速') }
+    },
+    
+    /* 遥控器 */
+    controller: {
+        /* 上升 */
+        up() {
+            uav.diantiao1.up()
+            uav.diantiao2.up()
+            uav.diantiao3.up()
+            uav.diantiao4.up()
+        },
+        
+        /* 前进 */
+        forward() {
+            uav.diantiao1.down()
+            uav.diantiao2.down()
+            uav.diantiao3.up()
+            uav.diantiao4.up()
+        },
+        
+        /* 下降 */
+        down() {
+            uav.diantiao1.down()
+            uav.diantiao2.down()
+            uav.diantiao3.down()
+            uav.diantiao4.down()
+        },
+        
+        /* 左转 */
+        left() {
+            uav.diantiao1.up()
+            uav.diantiao2.down()
+            uav.diantiao3.up()
+            uav.diantiao4.down()
+        }
+    }
+}
+
+/* 操纵无人机 */
+uav.controller.down()    // 发送下降指令
+uav.controller.left()    // 发送左转指令
+```
+
+## 1.7迭代器模式
+
+https://es6.ruanyifeng.com/#docs/iterator
+
+``` typescript
+interface IteratorType<T> {
+    next: () => T;
+    hasNext: () => boolean;
+}
+
+
+class Collection {
+    constructor(private numbers: number[]) {
+    }
+
+    public createIterator() {
+        return new AllIterator(this.numbers);
+    }
+}
+
+
+class AllIterator implements IteratorType<{ value?: number, done: boolean }> {
+    private index = 0
+    private _numbers: number[] = [];
+
+    constructor(numbers: number[]) {
+        this._numbers = numbers
+    }
+    next(): { value?: number, done: boolean } {
+        if (this.index < this._numbers.length ) {
+            const currentItem = this._numbers[this.index++];
+            return { value: currentItem, done: false };
+        } else {
+            return { value: undefined, done: true }
+        }
+    }
+    hasNext(): boolean {
+        return this._numbers.length > this.index
+    }
+
+}
+
+const collection = new Collection([1, 2, 3]);
+const iterator = collection.createIterator()
+console.log(iterator.next());
+console.log(iterator.next());
+console.log(iterator.next());
+console.log(iterator.next());
+
+```
+
+
+
+Generator 生成器
+
+yield* 操作符
+
+```ts
+function* genNums() {
+  yield 10;
+  yield 20;
+  yield 30;
+}
+
+const numsIterator = genNums(); // 迭代器，如 arr[Symbol.iterator]()
+console.log(numsIterator.next());
+for (let n of numsIterator) {
+  console.log(n);
+}
+复制代码
+function* genNums() {
+  yield* [10, 20, 30]; // 有序结构，已经实现了 Symbol.iterator
+  // => [10,20,30].forEach(n => yield n);
+}
+
+const numsIterator = genNums();
+for (let n of numsIterator) {
+  console.log(n);
+}
+复制代码
+```
+
+使用 Generator 遍历 DOM 树
+
+```ts
+function* traverse(elemList: Element[]): any {
+  for (const elem of elemList) {
+    yield elem;
+
+    const children = Array.from(elem.children);
+    if (children.length) {
+      yield* traverse(children);
+    }
+  }
+}
+
+const container = document.getElementById('container');
+if (container) {
+  for (let node of traverse([container])) {
+    console.log(node);
+  }
+}
+```
+
+
+
+
+
+
+
+
 
 
 
