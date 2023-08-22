@@ -7,7 +7,7 @@
 // import "./设计模式/5.观察者模式-发布订阅模式/Observer";
 // import "./设计模式/6.策略模式/Strategic";
 // import "./设计模式/7.门面模式/Facade";
-import "./设计模式/8.迭代器模式/Iterator";
+// import "./设计模式/8.迭代器模式/Iterator";
 import Koa from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
